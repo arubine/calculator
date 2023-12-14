@@ -1,53 +1,134 @@
+let currentValue = 0
+
+let storedValue = 0
+
+function defaultLastUsedOperator(a) {
+  return a
+}
+
+let lastUsedOperator = defaultLastUsedOperator
+
+let arrayCurrent = []
+
 const display = document.querySelector('.display')
 
-let numberDisplayArray = []
+let displayValue
 
 function updateDisplay() {
-  display.textContent = numberDisplayArray.join('') || 0
+  displayValue = arrayCurrent.join('') || storedValue
+  display.textContent = displayValue
+  currentValue = +displayValue
+  const testString = `${display.textContent}`
+  if (testString.length > 10) {
+    display.textContent = 'Error'
+    deactivateBtns()
+  }
 }
 
+function createNumberBtn() {
+  arrayCurrent.push(this.textContent)
+  updateDisplay()
+}
 const numberBtns = document.querySelectorAll('.number')
 
-function numberClick() {
-  numberDisplayArray.push(this.textContent)
-  if (numberDisplayArray.length > 14) {
-    display.textContent = 'Err'
-    disableNumberBtns()
-    return
+numberBtns.forEach((button) => {
+  button.addEventListener('click', createNumberBtn)
+})
+
+function add(a, b) {
+  return a + b
+}
+function subtract(a, b) {
+  return b - a
+}
+function multiply(a, b) {
+  return a * b
+}
+function divide(a, b) {
+  return b / a
+}
+
+function operate() {
+  storedValue = lastUsedOperator(currentValue, storedValue)
+  arrayCurrent = []
+  const storedValueString = `${storedValue}`
+  if (storedValueString.length > 10) {
+    console.log(storedValueString.length)
+    storedValue = (+storedValueString).toFixed(
+      storedValueString.length - 15
+    )
   }
   updateDisplay()
+  periodBtn.style['pointer-events'] = 'auto'
+  lastUsedOperator = defaultLastUsedOperator
 }
-
-function activateNumberBtns() {
-  numberBtns.forEach((button) => {
-    button.addEventListener('click', numberClick)
-  })
-}
-
-activateNumberBtns()
-
-function disableNumberBtns() {
-  numberBtns.forEach((button) => {
-    button.removeEventListener('click', numberClick)
-  })
-}
-
-const deleteBtn = document.querySelector('.delete')
-deleteBtn.addEventListener('click', () => {
-  numberDisplayArray.pop()
-  updateDisplay()
+const equalBtn = document.querySelector('#equal')
+equalBtn.addEventListener('click', () => {
+  operate()
 })
+
+const plusBtn = document.querySelector('.plus')
+plusBtn.addEventListener('click', () => {
+  operate()
+  lastUsedOperator = add
+})
+
+const minusBtn = document.querySelector('.minus')
+minusBtn.addEventListener('click', () => {
+  operate()
+  lastUsedOperator = subtract
+})
+
+const multiplyBtn = document.querySelector('.multiplier')
+multiplyBtn.addEventListener('click', () => {
+  operate()
+  lastUsedOperator = multiply
+})
+
+const divideBtn = document.querySelector('.division')
+divideBtn.addEventListener('click', () => {
+  operate()
+  lastUsedOperator = divide
+})
+
+const plusMinusBtn = document.querySelector('.plus-minus')
+plusMinusBtn.addEventListener('click', () => {
+  currentValue = currentValue * -1
+  display.textContent = currentValue
+})
+
+const allBtns = document.querySelectorAll(
+  '.operation, .number'
+)
+
+function deactivateBtns() {
+  allBtns.forEach((button) => {
+    button.style['pointer-events'] = 'none'
+  })
+}
 
 const clearBtn = document.querySelector('.clear')
 clearBtn.addEventListener('click', () => {
-  numberDisplayArray = []
-  display.textContent = 0
-  activateNumberBtns()
+  allBtns.forEach((button) => {
+    button.style['pointer-events'] = 'auto'
+  })
+  currentValue = 0
+  storedValue = 0
+  arrayCurrent = []
+  updateDisplay()
 })
 
-const plusSign = document.querySelector('.plus')
-const minusSign = document.querySelector('.minus')
-const multiplySign = document.querySelector('.multiplier')
-const divideSign = document.querySelector('.division')
+const deleteBtn = document.querySelector('.delete')
+deleteBtn.addEventListener('click', () => {
+  arrayCurrent.pop()
+  display.textContent = arrayCurrent.join('') || 0
+  currentValue = +display.textContent
+})
 
-const equalBtn = document.querySelector('.equal')
+const periodBtn = document.querySelector('.period')
+periodBtn.addEventListener('click', () => {
+  arrayCurrent.push('.')
+  periodBtn.style['pointer-events'] = 'none'
+  display.textContent = arrayCurrent.join('')
+  currentValue = +display.textContent
+})
